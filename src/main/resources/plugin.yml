@@ -1,0 +1,11 @@
+name: RPGTaleCraftPlugin
+main: fr.mrdraong.rpgtalecraft.RPGTaleCraftPlugin
+version: 1.0
+api-version: 1.21.1
+commands:
+  givebook:
+    description: "Donne le livre des tribus au joueur."
+    usage: /givebook
+  tribepage:
+    description: "Execute l'action' associée à une page du livre des tribus."
+    usage: /tribepage <pageIdentifier> <playerUUID>
