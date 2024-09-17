@@ -3,9 +3,12 @@ main: fr.mrdraong.rpgtalecraft.RPGTaleCraftPlugin
 version: 1.0
 api-version: 1.21.1
 commands:
-  givebook:
-    description: "Donne le livre des tribus au joueur."
-    usage: /givebook
+  tribebook:
+    description: "Give the tribes book to the player"
+    usage: /tribebook
   tribepage:
-    description: "Execute l'action' associée à une page du livre des tribus."
+    description: "Execute the action associate with the tribe book page"
     usage: /tribepage <pageIdentifier> <playerUUID>
+  tribequit:
+    description: "Remove your tribe and tribe item's"
+    usage: /tribequit

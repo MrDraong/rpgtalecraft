@@ -1,4 +1,4 @@
-package fr.mrdraong.rpgtalecraft.player;
+package fr.mrdraong.rpgtalecraft.tribe;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +15,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import fr.mrdraong.rpgtalecraft.RPGTaleCraftPlugin;
-import fr.mrdraong.rpgtalecraft.items.ItemsPersistentDataUtils;
+import fr.mrdraong.rpgtalecraft.item.ItemsPersistentDataUtils;
 
 public final class TribesUtils {
 
@@ -39,6 +39,7 @@ public final class TribesUtils {
 	}
 
 	public static void choseWarriorTribe(Player player) {
+		removePlayerTribe(player);
 		storePlayerTribeData(player, TribeEnum.WARRIOR);
 
 		ItemStack swordItem = new ItemStack(Material.WOODEN_SWORD);
@@ -50,25 +51,22 @@ public final class TribesUtils {
 
 		swordMeta.setItemName("Beginner's Sword");
 		swordMeta.setLore(swordLore);
-		swordMeta.addEnchant(Enchantment.SHARPNESS, 3, false);
 		swordMeta.setRarity(ItemRarity.EPIC);
 		swordMeta.setUnbreakable(true);
+		swordMeta.addEnchant(Enchantment.SHARPNESS, 3, false);
+		swordMeta.addEnchant(Enchantment.BINDING_CURSE, 1, false);
+
+		ItemsPersistentDataUtils.itemAddStringTag(swordMeta, "rpgtalecraft", "rpgtalecraft");
+		ItemsPersistentDataUtils.itemAddStringTag(swordMeta, "weapon", "sword");
 
 		swordItem.setItemMeta(swordMeta);
 
-		ItemStack stickItem = new ItemStack(Material.STICK);
-		ItemMeta stickMeta = stickItem.getItemMeta();
-
-		stickMeta.setItemName("Warrior Stick");
-		stickMeta.addEnchant(Enchantment.WIND_BURST, 1, false);
-
-		stickItem.setItemMeta(stickMeta);
-
-		player.getInventory().addItem(swordItem, stickItem);
+		player.getInventory().addItem(swordItem);
 		player.sendMessage(ChatColor.GREEN + "You are now a Warrior !");
 	}
 
 	public static void choseArcherTribe(Player player) {
+		removePlayerTribe(player);
 		storePlayerTribeData(player, TribeEnum.ARCHER);
 
 		ItemStack bowItem = new ItemStack(Material.BOW);
@@ -79,18 +77,26 @@ public final class TribesUtils {
 		bowLore.add("Remeber there is a lot of things to train...");
 
 		bowMeta.setItemName("Training Bow");
+		bowMeta.setLore(bowLore);
 		bowMeta.addEnchant(Enchantment.INFINITY, 1, false);
 		bowMeta.setRarity(ItemRarity.EPIC);
 		bowMeta.setUnbreakable(true);
+		bowMeta.addEnchant(Enchantment.BINDING_CURSE, 1, false);
+
+		ItemsPersistentDataUtils.itemAddStringTag(bowMeta, "rpgtalecraft", "rpgtalecraft");
 
 		bowItem.setItemMeta(bowMeta);
 
 		ItemStack arrowItem = new ItemStack(Material.ARROW);
 		ItemMeta arrowMeta = arrowItem.getItemMeta();
-
-		arrowMeta.setItemName("Basic Arrow");
-
-		ItemsPersistentDataUtils.itemAddTag(arrowMeta, "arrow", "fire");
+		ArrayList<String> arrowLore = new ArrayList<>();
+		arrowLore.add("Unleash a powerful arrow. With a " + ChatColor.GREEN + "right-click");
+		arrowLore.add(ChatColor.RESET + "toggle between Fire and Lightning effects to master your bow.");
+		arrowMeta.setItemName(ChatColor.BLUE + "Lightning Arrow");
+		arrowMeta.setLore(arrowLore);
+		arrowMeta.addEnchant(Enchantment.BINDING_CURSE, 1, false);
+		ItemsPersistentDataUtils.itemAddStringTag(arrowMeta, "rpgtalecraft", "rpgtalecraft");
+		ItemsPersistentDataUtils.itemAddStringTag(arrowMeta, "arrow", "lightning");
 		arrowItem.setItemMeta(arrowMeta);
 
 		player.getInventory().addItem(bowItem, arrowItem);
@@ -99,6 +105,7 @@ public final class TribesUtils {
 	}
 
 	public static void choseWizardTribe(Player player) {
+		removePlayerTribe(player);
 		storePlayerTribeData(player, TribeEnum.WIZARD);
 
 		ItemStack wandItem = new ItemStack(Material.STICK);
@@ -107,9 +114,16 @@ public final class TribesUtils {
 		ArrayList<String> wandLore = new ArrayList<>();
 		wandLore.add("Harry... You are not Harry !");
 		wandLore.add("Who give you this power !?");
+		wandLore.add("");
+		wandLore.add("Wield the power of magic with a " + ChatColor.BLUE + "right-click");
+		wandLore.add(ChatColor.RESET + "Switch between Fireball and Ice spells to control the battlefield.");
+		wandMeta.setItemName("Fire Wand");
+		wandMeta.setLore(wandLore);
+		wandMeta.addEnchant(Enchantment.BINDING_CURSE, 1, false);
 
-		wandMeta.setItemName("Magic Wand");
-		ItemsPersistentDataUtils.itemAddTag(wandMeta, "weapon", "wand");
+		ItemsPersistentDataUtils.itemAddStringTag(wandMeta, "rpgtalecraft", "rpgtalecraft");
+		ItemsPersistentDataUtils.itemAddStringTag(wandMeta, "weapon", "wand");
+		ItemsPersistentDataUtils.itemAddStringTag(wandMeta, "magic", "fire");
 		wandItem.setItemMeta(wandMeta);
 
 		player.getInventory().addItem(wandItem);
@@ -139,5 +153,29 @@ public final class TribesUtils {
 		};
 
 		return playerTribeEnum;
+	}
+
+	public static void removePlayerTribe(Player player) {
+		TribeEnum playerTribe = getPlayerTribe(player);
+		if (playerTribe != TribeEnum.NONE) {
+			removeTribeItems(player);
+			player.sendMessage(ChatColor.BLUE + "You have left your tribe.");
+		} else {
+			player.sendMessage(ChatColor.RED + "You don't have a tribe yet.");
+		}
+	}
+
+	private static void removeTribeItems(Player player) {
+		if (player.getInventory() != null) {
+			for (ItemStack item : player.getInventory().getContents()) {
+				if (item != null && item.hasItemMeta()) {
+					if (ItemsPersistentDataUtils.itemHasStringTag(item.getItemMeta(), "rpgtalecraft", "rpgtalecraft")) {
+						player.getInventory().remove(item);
+					}
+				}
+			}
+			player.updateInventory();
+		}
+
 	}
 }

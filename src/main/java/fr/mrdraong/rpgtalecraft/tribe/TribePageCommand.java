@@ -1,4 +1,4 @@
-package fr.mrdraong.rpgtalecraft.player;
+package fr.mrdraong.rpgtalecraft.tribe;
 
 import java.util.UUID;
 
@@ -16,7 +16,7 @@ public class TribePageCommand implements CommandExecutor {
 			String pageIdentifier = args[0];
 			String uuidString = args[1];
 
-			// Conversion of the string into real JAVA UUID
+			// Conversion of the string into Java UUID
 			try {
 				UUID uuid = UUID.fromString(uuidString);
 				Player player = Bukkit.getPlayer(uuid);
